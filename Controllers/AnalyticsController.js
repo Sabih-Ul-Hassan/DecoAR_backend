@@ -2,6 +2,7 @@ const Product = require('../Models/ProductModel');
 const Review = require('../Models/ReviewModel');
 const Order = require('../Models/OrderModel');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 
 const filterProducts = async (req, res) => {
@@ -159,4 +160,257 @@ const filterProducts = async (req, res) => {
   }
 }
 
-module.exports = { filterProducts };
+
+var getOrderCount = async (req,res) => {
+    var {userId, date} = req.params;
+    var startDate =new Date() ;
+    var endDate  =new Date()   ;
+
+    switch (date) {
+        case 'thisWeek':
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+            break;
+        case 'thisMonth':
+            startDate.setDate(1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            endDate.setDate(0);
+            break;
+        case 'thisYear':
+            startDate.setMonth(0);
+            startDate.setDate(1);
+            endDate.setMonth(11);
+            endDate.setDate(31);
+            break;
+        default:
+            break;
+    }
+    var filter  = { seller: new mongoose.Types.ObjectId(userId),  status: { $ne: 'Cancelled' } };
+    if(date != "allTime")
+        filter={...filter,  createdAt: { $gte: startDate, $lte: endDate }, }
+    const groupedOrders = await Order.aggregate([
+        { 
+            $match: filter
+        },
+        {
+            $group: {
+                _id: {
+                    $cond: {
+                        if: { $eq: [date, 'thisWeek'] },
+                        then: { $dayOfWeek: '$createdAt' },
+                        else: { 
+                            $cond: {
+                                if: { $eq: [date, 'thisMonth'] },
+                                then: { $dayOfMonth: '$createdAt' },
+                                else: { 
+                                    $cond: {
+                                        if: { $eq: [date, 'thisYear'] },
+                                        then: { $month: '$createdAt' },
+                                        else: { $year: '$createdAt' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                totalPrice: { $sum: '$quantity' }
+            }
+        }
+    ]);
+    if(date=="thisYear")
+        res.json(replaceWithMonthNames(groupedOrders));
+    else if(date=="thisMonth")
+        {
+            res.json(replaceWithdaysMonth(groupedOrders));
+        }
+        else{
+        res.json(groupedOrders.map(x=> {return {"value":x.totalPrice,"name":x._id};}));
+    }
+};
+
+var getNumberOfCancelledOrders = async (req,res) => {
+    var {userId, date} = req.params;
+    var startDate =new Date() ;
+    var endDate  =new Date()   ;
+
+    switch (date) {
+        case 'thisWeek':
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+            break;
+        case 'thisMonth':
+            startDate.setDate(1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            endDate.setDate(0);
+            break;
+        case 'thisYear':
+            startDate.setMonth(0);
+            startDate.setDate(1);
+            endDate.setMonth(11);
+            endDate.setDate(31);
+            break;
+        default:
+            break;
+    }
+    var filter  = { seller: new mongoose.Types.ObjectId(userId),  status: { $eq: 'Cancelled' } };
+    if(date != "allTime")
+        filter={...filter,  createdAt: { $gte: startDate, $lte: endDate }, }
+    const groupedOrders = await Order.aggregate([
+        { 
+            $match: filter
+        },
+        {
+            $group: {
+                _id: {
+                    $cond: {
+                        if: { $eq: [date, 'thisWeek'] },
+                        then: { $dayOfWeek: '$createdAt' },
+                        else: { 
+                            $cond: {
+                                if: { $eq: [date, 'thisMonth'] },
+                                then: { $dayOfMonth: '$createdAt' },
+                                else: { 
+                                    $cond: {
+                                        if: { $eq: [date, 'thisYear'] },
+                                        then: { $month: '$createdAt' },
+                                        else: { $year: '$createdAt' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                totalPrice: { $sum: '$quantity' }
+            }
+        }
+    ]);
+    if(date=="thisYear")
+        res.json(replaceWithMonthNames(groupedOrders));
+    else if(date=="thisMonth")
+        {
+            res.json(replaceWithdaysMonth(groupedOrders));
+        }
+        else{
+        res.json(groupedOrders.map(x=> {return {"value":x.totalPrice,"name":x._id};}));
+    }
+};
+
+  const replaceWithMonthNames = (monthTotals) => {
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const result = [];
+
+    for (let i = 1; i <= 12; i++) {
+        const monthIndex = monthTotals.findIndex(item => item._id === i);
+        if (monthIndex !== -1) {
+            result.push({
+                name: monthNames[i - 1],
+                value: monthTotals[monthIndex].totalPrice
+            });
+        } else {
+            result.push({
+                name: monthNames[i - 1],
+                value: 0
+            });
+        }
+    }
+
+    return result;
+};
+  
+  const replaceWithdaysMonth = (monthTotals) => {
+    
+
+    const result = [];
+
+    for (let i = 1; i <= 31; i++) {
+        const monthIndex = monthTotals.findIndex(item => item._id === i);
+        if (monthIndex !== -1) {
+            result.push({
+                name: i,
+                value: monthTotals[monthIndex].totalPrice
+            });
+        } else {
+            result.push({
+                name: i,
+                value: 0
+            });
+        }
+    }
+
+    return result;
+};
+ 
+  var getOrderStats = async (req,res) => {
+    var {userId, date} = req.params;
+    var startDate =new Date() ;
+    var endDate  =new Date()   ;
+
+    switch (date) {
+        case 'thisWeek':
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
+            break;
+        case 'thisMonth':
+            startDate.setDate(1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            endDate.setDate(0);
+            break;
+        case 'thisYear':
+            startDate.setMonth(0);
+            startDate.setDate(1);
+            endDate.setMonth(11);
+            endDate.setDate(31);
+            break;
+        default:
+            break;
+    }
+    var filter  = { seller: new mongoose.Types.ObjectId(userId),  status: { $ne: 'Cancelled' } };
+    if(date != "allTime")
+        filter={...filter,  createdAt: { $gte: startDate, $lte: endDate }, }
+    const groupedOrders = await Order.aggregate([
+        { 
+            $match: filter
+        },
+        {
+            $group: {
+                _id: {
+                    $cond: {
+                        if: { $eq: [date, 'thisWeek'] },
+                        then: { $dayOfWeek: '$createdAt' },
+                        else: { 
+                            $cond: {
+                                if: { $eq: [date, 'thisMonth'] },
+                                then: { $dayOfMonth: '$createdAt' },
+                                else: { 
+                                    $cond: {
+                                        if: { $eq: [date, 'thisYear'] },
+                                        then: { $month: '$createdAt' },
+                                        else: { $year: '$createdAt' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                totalPrice: { $sum: '$totalPrice' }
+            }
+        }
+    ]);
+    if(date=="thisYear")
+        res.json(replaceWithMonthNames(groupedOrders));
+    else if(date=="thisMonth")
+        {
+            res.json(replaceWithdaysMonth(groupedOrders));
+        }
+        else{
+        res.json(groupedOrders.map(x=> {return {"value":x.totalPrice,"name":x._id};}));
+    }
+};
+
+  
+  
+
+module.exports = { filterProducts, getOrderStats, getOrderCount, getNumberOfCancelledOrders };
