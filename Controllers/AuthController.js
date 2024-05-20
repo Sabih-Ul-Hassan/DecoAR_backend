@@ -1,5 +1,7 @@
 
 const User = require('../Models/UserModel');
+const Payment = require("../Models/PayemntModel")
+const mongoose= require("mongoose");
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -23,6 +25,11 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.payment = async (req,res)=>{
+  var payments = await Payment.find({userId:new mongoose.Types.ObjectId(req.params.userId)}).sort({dateTime:-1}).lean();
+  res.json(payments);
+}
 
 exports.signup = async (req, res) => {
   const { name, email, password } = req.body;

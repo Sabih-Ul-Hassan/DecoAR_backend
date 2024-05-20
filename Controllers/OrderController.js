@@ -1,6 +1,7 @@
 var OrderModel = require("../Models/OrderModel")
 var UserModel = require("../Models/UserModel")
 var ProductModel = require("../Models/ProductModel")
+var PaymentModel = require("../Models/PayemntModel");
 var {addNotification} = require("../Functions/addNotification")
 var {sendNotification} = require('../Functions/sendNotification')
 var {getFCMTokenByUserID} = require('../Functions/getFCMTokenByUserID')
@@ -188,7 +189,9 @@ async function cancelOrder(req,res) {
     await order.save();
     if(order.paymentMethod=="online")
 {    await updateBalanceAfterCancelingCustomer(order.totalPrice,order.user);
-    await updateBalanceAfterCancelingSeller(order.totalPrice,order.seller);}
+    await updateBalanceAfterCancelingSeller(order.totalPrice,order.seller);
+    await recieveAmount(order.totalPrice,order.user);
+  }
     var notiBody=`Your order, with order ID: ${orderId}, has been cancelled.`;
     await addNotification(notiBody,order.seller,'seller');
     sendNotification(await getFCMTokenByUserID(order.seller),"Order Updated",notiBody,{type:"notification"})
@@ -200,6 +203,9 @@ async function cancelOrder(req,res) {
   }
 }
 
-
+var recieveAmount=async(amount,userId)=>{
+  var payment = new PaymentModel({amount,userId,transactionType:"receiving"});
+  await payment.save();
+}
 module.exports = {updateOrderStatus, getOrders, getOrderDetails,updateOrderQuantityAndTotalPrice,cancelOrder,getOrdersBySeller};
 

@@ -2,6 +2,7 @@
 var ProductModel = require('../Models/ProductModel')
 var UserModel = require('../Models/UserModel')
 var OrderModel = require('../Models/OrderModel')
+var PaymentModel = require("../Models/PayemntModel");
 
 var {addNotification} = require("../Functions/addNotification")
 var {sendNotification} = require('../Functions/sendNotification')
@@ -80,7 +81,7 @@ var getItems = async (req, res) => {
  var createOnlinePaymentOrder = async (req, res) => {
     try {
       const { userId, cart, shippingAddress } = req.body;
-  
+      var finalSum=0;
       let address = shippingAddress;
       if (!shippingAddress) {
         const user = await UserModel.findById(userId);
@@ -98,7 +99,7 @@ var getItems = async (req, res) => {
         product.availability-=item.quantity;
         
         const totalPrice = product.price * item.quantity;
-  
+        finalSum+=totalPrice;
         const order = new OrderModel({
           user: userId,
           seller: product.userId,
@@ -123,7 +124,8 @@ var getItems = async (req, res) => {
         }
        
       }
-  
+      var payment = new PaymentModel({amount:finalSum,userId,transactionType:"sending"});
+      await payment.save();
       res.status(201).json({ message: 'Orders created successfully' });
     } catch (error) {
       console.error('Error creating order:', error);
