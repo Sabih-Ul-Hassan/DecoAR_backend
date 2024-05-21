@@ -25,10 +25,29 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.logout = async (req, res) => {
+  const { id } = req.body;
+  
+  try {
+    const user = await User.findById( id);
+    user.fcmTokken="";
+    await user.save();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json(true);
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 exports.payment = async (req,res)=>{
   var payments = await Payment.find({userId:new mongoose.Types.ObjectId(req.params.userId)}).sort({dateTime:-1}).lean();
+  console.log(req.params);
   res.json(payments);
+
 }
 
 exports.signup = async (req, res) => {
@@ -55,3 +74,4 @@ exports.signup = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+

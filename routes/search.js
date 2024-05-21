@@ -6,4 +6,5 @@ router.get('/products/suggestions/:query',searchController.productSuggestions);
 router.get('/filter',searchController.filter);
 router.get('/products',searchController.searchProducts);
 router.get('/users/:userName',searchController.searchUsers);
+router.get('/user/:id',searchController.searchUser);
 module.exports = router;

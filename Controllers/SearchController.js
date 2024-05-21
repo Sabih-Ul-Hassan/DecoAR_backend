@@ -1,5 +1,6 @@
 var ProductModel = require("../Models/ProductModel")
 var UserModel = require("../Models/UserModel")
+var UserReviewsModel = require("../Models/UserReviewsModel")
 var productSuggestions = async (req,res)=> {
   try {
     const query  = req.params.query;
@@ -156,5 +157,40 @@ const searchProducts = async (req, res) => { // newer! works? idk!
       res.status(500).json({ message: 'Server Error' });
     }
   }
-
-module.exports = { productSuggestions, searchProducts , filter,searchUsers}
+  var searchUser = async (req, res) => {
+    try {
+      var user = await UserModel.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }  
+      const reviews = await UserReviewsModel.find({ ReviewedUsersId: req.params.id }).lean();
+      var averageRating;
+      if (reviews.length === 0) {
+        averageRating = 0;
+      } else {
+        const totalStars = reviews.reduce((sum, review) => sum + review.stars, 0);
+        averageRating = totalStars / reviews.length;
+      }
+      user.averageRating = averageRating;
+      user.reviews = reviews.length;
+      
+      res.json({
+        averageRating: averageRating,
+        reviews: reviews.length,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        fcmTokken: user.fcmTokken,
+        password: user.password,
+        deleted: user.deleted,
+        address: user.address,
+        balance: user.balance
+      })
+    } catch (error) {
+      console.error("Error searching user:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+  
+module.exports = { productSuggestions, searchProducts , filter,searchUsers,searchUser}
