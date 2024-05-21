@@ -10,6 +10,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  deleted: {
+    default:true,
+    type:Boolean
+  },
   availability: {
     type: Number,
     required: true,
