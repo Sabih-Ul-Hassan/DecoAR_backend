@@ -53,16 +53,14 @@ def recommend_products(query, n=5):
     db = client['decoar']
     collection = db['products']
 
-    # Fetch data from MongoDB, including _id field in the projection
+  
     data = collection.find({}, {'_id': 1, 'category': 1, 'description': 1, 'tags': 1})
 
-    # Preprocess text data
     documents = []
     for item in data:
         text = ' '.join([item.get('category', ''), item.get('description', '')] + item.get('tags', []))
         documents.append((str(item['_id']), text))  # Include _id in the documents
 
-    # Calculate TF-IDF
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf_vectorizer.fit_transform([doc[1] for doc in documents])
 

@@ -1,4 +1,5 @@
 var ProductModel = require("../Models/ProductModel")
+var UserModel = require("../Models/UserModel")
 var productSuggestions = async (req,res)=> {
   try {
     const query  = req.params.query;
@@ -144,4 +145,16 @@ const searchProducts = async (req, res) => { // newer! works? idk!
     }
   }
 
-module.exports = { productSuggestions, searchProducts , filter}
+  var searchUsers = async (req, res) => {
+    try {
+      console.log(req.params)
+      const { userName } = req.params; 
+      const users = await UserModel.find({ name: { $regex: userName, $options: 'i' }, deleted:false}).lean(); 
+      res.json(users);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  }
+
+module.exports = { productSuggestions, searchProducts , filter,searchUsers}
