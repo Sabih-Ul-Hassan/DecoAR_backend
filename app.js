@@ -26,7 +26,8 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); 
+
 mongoose.connect('mongodb://localhost:27017/decoar', {
   useNewUrlParser: true,
 });

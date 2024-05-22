@@ -50,6 +50,39 @@ exports.payment = async (req,res)=>{
 
 }
 
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+
+    user.picture = req.picture;
+    await user.save();
+
+    res.send({ picture: req.picture });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+exports.updateAddress=async (req,res)=>{
+  const { userId } = req.params;
+  const { address } = req.body;
+  if (!userId || !address) {
+    return res.status(400).json({ error: 'User ID and address are required' });
+  }
+  var user = await User.findById(userId);
+  user.address = address;
+  await user.save();
+  res.json({ message: 'Address updated successfully', user });
+}
+
 exports.signup = async (req, res) => {
   const { name, email, password , address, accountNo} = req.body;
 

@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   },
   accountNo:{
     type:String,
-    required:true
+    defalult:"true"
   }
 });
 
