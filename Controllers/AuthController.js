@@ -51,7 +51,7 @@ exports.payment = async (req,res)=>{
 }
 
 exports.signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password , address, accountNo} = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -63,7 +63,9 @@ exports.signup = async (req, res) => {
     const newUser = new User({
       name,
       email,
-      password
+      password,
+      accountNo,
+      address
     });
     newUser.fcmTokken=req.query.fcmTokken;    
     await newUser.save();
