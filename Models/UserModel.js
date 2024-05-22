@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
   deleted:{
     type: Boolean, default: false
   },
+  admin:{
+    type: Boolean, default: null
+  },
   password:{
     type:String,
     required:true

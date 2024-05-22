@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   deleted: {
-    default:true,
+    default:false,
     type:Boolean
   },
   availability: {

@@ -11,6 +11,7 @@ var searchRouter = require('./routes/search');
 var reviewsRouter = require('./routes/reviews');
 var chatsRouter = require('./routes/chats');
 var orderRouter = require('./routes/orders');
+var adminRouter = require('./routes/admin');
 var notifications = require('./routes/notifications');
 var recommendation = require('./routes/recommendation');
 var analytics = require('./routes/analytics');
@@ -31,6 +32,7 @@ mongoose.connect('mongodb://localhost:27017/decoar', {
 });
 app.post('/create-payment-intent', paymentIntent);
 app.use('/', indexRouter);
+app.use('/admin', adminRouter);
 app.use('/user', usersRouter);
 app.use('/products', productsRouter);
 app.use('/search', searchRouter);
