@@ -147,8 +147,7 @@ const searchProducts = async (req, res) => { // newer! works? idk!
   }
 
   var searchUsers = async (req, res) => {
-    try {
-      console.log(req.params)
+    try { 
       const { userName } = req.params; 
       const users = await UserModel.find({ name: { $regex: userName, $options: 'i' }, deleted:false}).lean(); 
       res.json(users);
