@@ -8,7 +8,7 @@ var productSuggestions = async (req,res)=> {
     // Split the query based on spaces
     const queryArray = query.split(' ');
 
-    const titles = await ProductModel.find({
+    const titles = await ProductModel.find({deleted:false,
       $or: [
         { title: { $regex: new RegExp(query, 'i') } },
         { description: { $regex: new RegExp(query, 'i') } }
@@ -55,7 +55,7 @@ const searchProducts = async (req, res) => { // newer! works? idk!
   try {
     const { title, minPrice, maxPrice, category, sortBy } = req.query;
 
-    let mongooseQuery = {};
+    let mongooseQuery = {deleted:false};
 
     if (title) {
       const tags = title.split(' ');

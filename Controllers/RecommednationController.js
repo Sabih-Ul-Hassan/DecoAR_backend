@@ -43,7 +43,7 @@ var recommend = async (req, res) => {
 };
 const getLatestProducts = async (req, res) => {
     try {
-      const products = await Product.find({})
+      const products = await Product.find({deleted:false})
         .sort({ createdAt: -1 }) 
         .limit(6) 
         .select({ _id: 1, title: 1, price: 1, category: 1, images: 1, availability: 1 }) 
@@ -63,7 +63,7 @@ const getLatestProducts = async (req, res) => {
   
 async function getProductsByIds(productIds) {
     try {
-        const mongooseQuery = { _id: { $in: productIds } };
+        const mongooseQuery = { _id: { $in: productIds },deleted:false };
 
         const products = await Product.find(mongooseQuery, { _id: 1, title: 1, price: 1, category: 1, images: 1, availability: 1 }).lean();
         const transformedProducts = products.map(product => ({

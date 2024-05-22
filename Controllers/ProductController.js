@@ -104,7 +104,7 @@ const getProductsByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const products = await ProductModel.find({ userId }, 'images title price category availability _id');
+    const products = await ProductModel.find({ userId ,deleted:false}, 'images title price category availability _id');
 
   
     
