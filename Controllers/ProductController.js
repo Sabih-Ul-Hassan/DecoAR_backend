@@ -7,8 +7,10 @@ const deleteProductById = async (req, res) => {
     const { id } = req.params;
     console.log(id);
     try {
-      const deletedProduct = await ProductModel.findByIdAndDelete(id);
-      if (deletedProduct) {
+      const prod = await ProductModel.findById(id);
+      prod.deleted=true;
+      await prod.save();
+      if (prod.deleted) {
         res.status(200).json({ message: 'Product deleted successfully' });
       } else {
         res.status(404).json({ error: 'Product not found' });
