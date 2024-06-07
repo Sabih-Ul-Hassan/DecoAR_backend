@@ -1,3 +1,4 @@
+ 
 var express = require('express');
 var router = express.Router();
 var {addProduct , getProductsByUserId, getProductById, deleteProductById,updateProduct} = require('../Controllers/ProductController');
@@ -8,9 +9,10 @@ const uuid = require('uuid');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === 'images') {
-      cb(null, 'public/uploads'); 
+      cb(null, 'public/uploads'); // specify the destination folder for images
     } else if (file.fieldname === 'model') {
-      cb(null, 'public/models');  
+      cb(null, 'public/models'); // specify the destination folder for models
+    } else {
       cb(new Error('Invalid fieldname'), null);
     }
   },

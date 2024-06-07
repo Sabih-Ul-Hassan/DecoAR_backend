@@ -13,6 +13,7 @@ var chatsRouter = require('./routes/chats');
 var orderRouter = require('./routes/orders');
 var adminRouter = require('./routes/admin');
 var notifications = require('./routes/notifications');
+var paymentReq = require('./routes/paymentReq');
 var recommendation = require('./routes/recommendation');
 var analytics = require('./routes/analytics');
 var cart = require('./routes/cart');
@@ -27,6 +28,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); 
+app.use((req, res, next) => {
+  console.log('Request Path:', req.path);
+  next();
+});
+
 
 mongoose.connect('mongodb://localhost:27017/decoar', {
   useNewUrlParser: true,
@@ -39,6 +45,7 @@ app.use('/products', productsRouter);
 app.use('/search', searchRouter);
 app.use('/reviews', reviewsRouter);
 app.use('/chats', chatsRouter);
+app.use('/paymentReq', paymentReq);
 app.use('/orders', orderRouter);
 app.use('/notifications', notifications);
 app.use('/recommendation', recommendation);

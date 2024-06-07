@@ -3,6 +3,7 @@ var router = express.Router();
 const adminController = require('../Controllers/AdminController');
 
  
+router.get('/toggle/:userId', adminController.toggle);
 router.get('/products', adminController.products);
 router.get('/users', adminController.users);
 router.delete('/user/:userId', adminController.delUser);

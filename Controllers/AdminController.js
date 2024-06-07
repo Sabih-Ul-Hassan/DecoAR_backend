@@ -16,5 +16,13 @@ var delUser = async(req,res)=>{
     res.json(true);
 }
   
+var toggle = async(req,res)=>{
+    var user = await UserModel.findById(req.params.userId);
+    if(user.admin) user.admin=false;
+    else user.admin=true;
+    await user.save();
+    res.json(true);
+}
+  
 
-module.exports = { users,delUser, products };
+module.exports = { users,delUser, products,toggle };

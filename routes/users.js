@@ -27,5 +27,6 @@ router.put('/updateAddress/:userId', authController.updateAddress);
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/logout', authController.logout);
+router.get('/user/:email', authController.getUser);
 router.get('/payments/:userId', authController.payment);
 module.exports = router;

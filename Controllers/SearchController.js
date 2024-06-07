@@ -184,7 +184,8 @@ const searchProducts = async (req, res) => { // newer! works? idk!
         password: user.password,
         deleted: user.deleted,
         address: user.address,
-        balance: user.balance
+        balance: user.balance,
+        admin:user.admin
       })
     } catch (error) {
       console.error("Error searching user:", error);
