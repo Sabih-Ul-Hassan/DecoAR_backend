@@ -1,5 +1,8 @@
 const PaymentReq = require('../Models/PaymentReqModel');
 const User = require("../Models/UserModel")
+var {addNotification} = require("../Functions/addNotification")
+var {sendNotification} = require('../Functions/sendNotification')
+var {getFCMTokenByUserID} = require('../Functions/getFCMTokenByUserID')
 
 exports.getAllUnpaidRequests = async (req, res) => {
   try {
@@ -45,8 +48,13 @@ exports.markPaid = async (req, res) => {
     user.balance = user.balance - balance;
     await paymentReq.save();
 
+
     await user.save();
     console.log("done")
+    var notiBody= "you amount of "+balance+" has been paid, current balance is :"+user.balance;
+    await addNotification(notiBody,paymentReq.userId,'seller');
+    sendNotification(await getFCMTokenByUserID(paymentReq.userId),"Payment made",notiBody,{type:"notification"})
+ 
     res.status(200).json({ message: 'Payment request marked as paid', paymentReq });
   } catch (error) {
     console.log(error)
